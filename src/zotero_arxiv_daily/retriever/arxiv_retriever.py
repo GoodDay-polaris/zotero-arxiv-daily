@@ -113,15 +113,22 @@ class ArxivRetriever(BaseRetriever):
             raise ValueError("category must be specified for arxiv.")
 
     def _retrieve_raw_papers(self) -> list[ArxivResult]:
-       # 修复 406 错误，添加合法 User-Agent
+      # 全局修复 arXiv 406 错误（兼容所有版本）
+        import urllib3
+        urllib3.disable_warnings()
+        
+        # 强制设置全局 User-Agent
+        import arxiv
         client = arxiv.Client(
             page_size=100,
             delay_seconds=3,
-            num_retries=5,
-            headers={
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-            }    
+            num_retries=5
         )
+        
+        # 核心修复：强制给客户端添加请求头（兼容旧版）
+        client._session.headers.update({
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        })
         query = '+'.join(self.config.source.arxiv.category)
         include_cross_list = self.config.source.arxiv.get("include_cross_list", False)
         # Get the latest paper from arxiv rss feed
