@@ -2,7 +2,7 @@ name: Send emails daily
 on:
   workflow_dispatch:
   schedule:
-    - cron: '10 9 * * *'
+    - cron: '0 10 * * *'
 
 jobs:
   calculate-and-send:
@@ -32,5 +32,4 @@ jobs:
           printf "%b\n" "$CUSTOM_CONFIG" > config/custom.yaml
           echo "Use custom config: "
           cat config/custom.yaml
-          uv run src/zotero_arxiv_daily/main.py
           uv run src/zotero_arxiv_daily/main.py
